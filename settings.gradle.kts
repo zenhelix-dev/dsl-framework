@@ -3,11 +3,3 @@ plugins {
 }
 rootProject.name = "dsl-framework"
 
-include("dsl-core")
-include("dsl-groovy-support")
-include("dsl-kotlin-support")
-include("dsl-api")
-
-include("dsl-gradle")
-
-include("dsl-examples")

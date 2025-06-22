@@ -11,7 +11,7 @@ allprojects {
     }
 }
 
-subprojects {
+allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     dependencies {
@@ -19,6 +19,8 @@ subprojects {
         val testImplementation by configurations
 
         implementation(kotlin("stdlib"))
+        implementation("com.squareup:kotlinpoet:2.2.0")
+
         testImplementation(kotlin("test"))
         testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
         testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
@@ -27,5 +29,9 @@ subprojects {
 
     kotlin {
         jvmToolchain(21)
+    }
+
+    tasks.test {
+        useJUnitPlatform()
     }
 }
