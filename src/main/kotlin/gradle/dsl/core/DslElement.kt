@@ -36,17 +36,27 @@ class FunctionCall(
     private val arguments: List<Any> = emptyList()
 ) : DslElement {
 
-    override fun toCodeBlock(): CodeBlock = FunSpec.builder("")
-        .addStatement("$name(%L)", *arguments.toTypedArray())
-        .build()
-        .body
+    override fun toCodeBlock(): CodeBlock {
+        val parametersFormatString = if (arguments.isNotEmpty()) {
+            buildString {
+                repeat(arguments.size) { index ->
+                    if (index > 0) append(", ")
+                    append("%L")
+                }
+            }
+        } else {
+            ""
+        }
+
+        return FunSpec.builder("")
+            .addStatement("$name($parametersFormatString)", *arguments.toTypedArray())
+            .build()
+            .body
+    }
+
 
 }
 
-data class PropertyAssignment(
-    val name: String, val value: Any
-) : DslElement {
-    override fun toCodeBlock(): CodeBlock {
-        return CodeBlock.of("%L = %L\n", name, value)
-    }
+data class PropertyAssignment(val name: String, val value: Any) : DslElement {
+    override fun toCodeBlock(): CodeBlock = CodeBlock.of("%L = %L\n", name, value)
 }

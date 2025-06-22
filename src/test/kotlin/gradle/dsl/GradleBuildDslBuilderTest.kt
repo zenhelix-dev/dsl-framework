@@ -1,6 +1,7 @@
 package gradle.dsl
 
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class GradleBuildDslBuilderTest {
 
@@ -13,8 +14,38 @@ class GradleBuildDslBuilderTest {
 
             subprojects {
                 group = "com.example"
+
+                publishing {
+                    repositories {
+                        mavenLocal()
+                    }
+                }
+
+                signing {
+                    useInMemoryPgpKeys("test-key", "test-pass")
+                }
             }
         }
+
+        assertEquals(
+            """
+        |plugins {
+        |    id(java)
+        |}
+        |subprojects {
+        |    group = com.example
+        |    publishing {
+        |        repositories {
+        |            mavenLocal()
+        |        }
+        |    }
+        |    signing {
+        |        useInMemoryPgpKeys(test-key, test-pass)
+        |    }
+        |}
+        |
+        """.trimMargin(), output
+        )
     }
 
 }
