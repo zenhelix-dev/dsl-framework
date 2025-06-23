@@ -1,7 +1,6 @@
 package gradle.dsl.core
 
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
 
@@ -29,11 +28,26 @@ abstract class DslBlock(
         }
         endControlFlow()
     }
+
+}
+
+abstract class DslBodyBlock(
+    blockName: String,
+    override val children: MutableList<DslElement> = mutableListOf()
+) : DslBlock(blockName, children) {
+
+    override fun toCodeBlock(): CodeBlock = buildCodeBlock {
+        withIndent {
+            children.forEach { add("%L", it.toCodeBlock()) }
+        }
+    }
+
 }
 
 class FunctionCall(
     private val name: String,
-    private val arguments: List<Any> = emptyList()
+    private val arguments: List<Any> = emptyList(),
+    private val body: DslBodyBlock? = null
 ) : DslElement {
 
     override fun toCodeBlock(): CodeBlock {
@@ -41,19 +55,26 @@ class FunctionCall(
             buildString {
                 repeat(arguments.size) { index ->
                     if (index > 0) append(", ")
-                    append("%L")
+                    append("%S")
                 }
             }
         } else {
             ""
         }
 
-        return FunSpec.builder("")
-            .addStatement("$name($parametersFormatString)", *arguments.toTypedArray())
-            .build()
-            .body
-    }
+        val builder = CodeBlock.builder()
 
+        if (body != null) {
+            builder
+                .beginControlFlow("$name($parametersFormatString)", *arguments.toTypedArray())
+                .add(body.toCodeBlock())
+                .endControlFlow()
+        } else {
+            builder.add("$name($parametersFormatString)\n", *arguments.toTypedArray())
+        }
+
+        return builder.build()
+    }
 
 }
 

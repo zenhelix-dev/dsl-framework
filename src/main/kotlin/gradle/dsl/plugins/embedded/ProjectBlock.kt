@@ -11,6 +11,14 @@ class ProjectBlock(override val blockName: String = "") : DslBlock(blockName) {
             addChild(PropertyAssignment("group", value))
         }
 
+    fun tasks(block: TasksBlock.() -> Unit = {}) = apply {
+        addChild(TasksBlock().apply(block))
+    }
+
+    fun repositories(block: RepositoryHandlerBlock.() -> Unit = {}) = apply {
+        addChild(RepositoryHandlerBlock().apply(block))
+    }
+
     fun publishing(block: PublishingExtensionBlock.() -> Unit = {}) = apply {
         addChild(PublishingExtensionBlock().apply(block))
     }

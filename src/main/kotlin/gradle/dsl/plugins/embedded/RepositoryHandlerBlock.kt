@@ -1,23 +1,21 @@
 package gradle.dsl.plugins.embedded
 
-import gradle.dsl.core.DslBlock
+import gradle.dsl.core.BaseNamedContainer
+import gradle.dsl.core.DslBodyBlock
 import gradle.dsl.core.FunctionCall
 
-class RepositoryHandlerBlock : DslBlock("repositories") {
+class RepositoryHandlerBlock : BaseNamedContainer<DslBodyBlock>("repositories") {
 
-    fun mavenCentral(): RepositoryHandlerBlock {
+    fun mavenCentral() = apply {
         addChild(FunctionCall("mavenCentral"))
-        return this
     }
 
-    fun mavenLocal(): RepositoryHandlerBlock {
+    fun mavenLocal() = apply {
         addChild(FunctionCall("mavenLocal"))
-        return this
     }
 
-    fun gradlePluginPortal(): RepositoryHandlerBlock {
+    fun gradlePluginPortal() = apply {
         addChild(FunctionCall("gradlePluginPortal"))
-        return this
     }
 
 }
