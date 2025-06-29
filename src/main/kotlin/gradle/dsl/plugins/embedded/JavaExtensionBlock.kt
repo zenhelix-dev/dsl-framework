@@ -1,0 +1,49 @@
+package gradle.dsl.plugins.embedded
+
+import gradle.dsl.core.ArgumentType
+import gradle.dsl.core.DslBlock
+import gradle.dsl.core.FunctionCall
+import gradle.dsl.core.PropertyAssignment
+import gradle.dsl.core.TypedArgument
+
+class JavaExtensionBlock : DslBlock("java") {
+
+    var sourceCompatibility: Any
+        get() = throw UnsupportedOperationException("sourceCompatibility is write-only in DSL context")
+        set(value) {
+            val property = if (value is org.gradle.api.JavaVersion) {
+                TypedArgument(org.gradle.api.JavaVersion::class.simpleName + "." + value.name, ArgumentType.CODE)
+            } else {
+                value
+            }
+            addChild(PropertyAssignment("sourceCompatibility", property))
+        }
+
+    var targetCompatibility: Any
+        get() = throw UnsupportedOperationException("targetCompatibility is write-only in DSL context")
+        set(value) {
+            val property = if (value is org.gradle.api.JavaVersion) {
+                TypedArgument(org.gradle.api.JavaVersion::class.simpleName + "." + value.name, ArgumentType.CODE)
+            } else {
+                value
+            }
+            addChild(PropertyAssignment("targetCompatibility", property))
+        }
+
+    fun withJavadocJar() = apply {
+        addChild(FunctionCall("withJavadocJar"))
+    }
+
+    fun withSourcesJar() = apply {
+        addChild(FunctionCall("withSourcesJar"))
+    }
+
+    fun toolchain(block: JavaToolchainBlock.() -> Unit) = apply {
+        addChild(JavaToolchainBlock().apply(block))
+    }
+
+}
+
+class JavaToolchainBlock : DslBlock("toolchain") {
+
+}

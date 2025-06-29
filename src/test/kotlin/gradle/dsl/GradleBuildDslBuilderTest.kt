@@ -2,6 +2,7 @@ package gradle.dsl
 
 import gradle.dsl.plugins.embedded.IvyPublication
 import gradle.dsl.plugins.embedded.MavenPublication
+import org.gradle.api.JavaVersion
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -103,4 +104,45 @@ class GradleBuildDslBuilderTest {
         )
     }
 
+    @Test
+    fun `other gradle build success`() {
+        val output = buildGradleKts {
+            plugins {
+                id("com.gradle.plugin-publish")
+                `kotlin-dsl`
+                signing
+                `jacoco-report-aggregation`
+                `jvm-test-suite`
+            }
+
+            group = "io.github.zenhelix"
+
+            repositories {
+                mavenCentral()
+                gradlePluginPortal()
+            }
+
+            java {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+
+                withJavadocJar()
+                withSourcesJar()
+            }
+
+            kotlin {
+                explicitApi()
+
+                compilerOptions {
+                }
+            }
+
+        }
+
+        assertEquals(
+            """
+            
+        """.trimMargin(), output
+        )
+    }
 }

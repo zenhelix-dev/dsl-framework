@@ -19,6 +19,8 @@ allprojects {
         val testImplementation by configurations
 
         implementation(kotlin("stdlib"))
+        implementation(gradleKotlinDsl())
+        implementation(gradleApi())
         implementation("com.squareup:kotlinpoet:2.2.0")
 
         testImplementation(kotlin("test"))

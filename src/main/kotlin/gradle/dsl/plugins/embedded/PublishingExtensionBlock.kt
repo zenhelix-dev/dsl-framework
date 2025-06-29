@@ -22,7 +22,7 @@ class PublishingExtensionBlock(
 
 }
 
-class PublishingProxy(parentContext: AutoRegisterContext) {
+class PublishingProxy(parentContext: AutoRegisterContext? = null) {
 
     val publications: PublicationsContainerBlock = PublicationsContainerBlock(
         autoRegisterContext = parentContext,

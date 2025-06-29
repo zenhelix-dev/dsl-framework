@@ -3,17 +3,20 @@ package gradle.dsl
 import gradle.dsl.core.AutoRegisterContext
 import gradle.dsl.core.DslElement
 import gradle.dsl.core.PropertyAssignment
+import gradle.dsl.plugins.embedded.GradlePluginExtensionBlock
+import gradle.dsl.plugins.embedded.JavaExtensionBlock
+import gradle.dsl.plugins.embedded.KotlinExtensionBlock
 import gradle.dsl.plugins.embedded.PluginsDependenciesSpecScopeBlock
 import gradle.dsl.plugins.embedded.ProjectBlock
 import gradle.dsl.plugins.embedded.PublishingExtensionBlock
 import gradle.dsl.plugins.embedded.PublishingProxy
+import gradle.dsl.plugins.embedded.ReportingExtensionBlock
 import gradle.dsl.plugins.embedded.RepositoryHandlerBlock
 import gradle.dsl.plugins.embedded.SigningExtensionBlock
 import gradle.dsl.plugins.embedded.TasksBlock
+import gradle.dsl.plugins.embedded.TestingExtensionBlock
 
 class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
-
-    private val rootProject = ProjectBlock("")
 
     var group: String
         get() = throw UnsupportedOperationException("group is write-only in DSL context")
@@ -35,12 +38,40 @@ class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
         elements.add(ProjectBlock("subprojects").apply(block))
     }
 
+    fun allprojects(block: ProjectBlock.() -> Unit = {}) = apply {
+        elements.add(ProjectBlock("allprojects").apply(block))
+    }
+
     fun tasks(block: TasksBlock.() -> Unit = {}) = apply {
-        elements.add(TasksBlock().apply(block))
+        elements.add(TasksBlock(object : AutoRegisterContext {
+            override fun autoRegister(element: DslElement) {
+                elements.add(element)
+            }
+        }).apply(block))
     }
 
     fun repositories(block: RepositoryHandlerBlock.() -> Unit = {}) = apply {
         elements.add(RepositoryHandlerBlock().apply(block))
+    }
+
+    fun java(block: JavaExtensionBlock.() -> Unit = {}) = apply {
+        elements.add(JavaExtensionBlock().apply(block))
+    }
+
+    fun kotlin(block: KotlinExtensionBlock.() -> Unit = {}) = apply {
+        elements.add(KotlinExtensionBlock().apply(block))
+    }
+
+    fun testing(block: TestingExtensionBlock.() -> Unit = {}) = apply {
+        elements.add(TestingExtensionBlock().apply(block))
+    }
+
+    fun gradlePlugin(block: GradlePluginExtensionBlock.() -> Unit = {}) = apply {
+        elements.add(GradlePluginExtensionBlock().apply(block))
+    }
+
+    fun reporting(block: ReportingExtensionBlock.() -> Unit = {}) = apply {
+        elements.add(ReportingExtensionBlock().apply(block))
     }
 
     val publishing: PublishingProxy = PublishingProxy(object : AutoRegisterContext {

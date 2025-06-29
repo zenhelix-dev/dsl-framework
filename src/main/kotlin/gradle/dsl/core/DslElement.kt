@@ -80,3 +80,10 @@ data class PropertyAssignment(val name: String, val value: Any) : DslElement {
         return CodeBlock.of("%L = $formatSpecifier\n", name, value)
     }
 }
+
+data class VariableElement(val value: Any) : DslElement {
+    override fun toCodeBlock(): CodeBlock {
+        val (formatSpecifier, value) = formatArgument(TypedArgument(value, ArgumentType.CODE))
+        return CodeBlock.of("$formatSpecifier\n", value)
+    }
+}
