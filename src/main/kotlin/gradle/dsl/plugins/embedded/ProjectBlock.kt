@@ -22,7 +22,7 @@ class ProjectBlock(override val blockName: String = "") : DslBlock(blockName) {
     val publishing: PublishingProxy = PublishingProxy(this)
 
     fun publishing(block: PublishingExtensionBlock.() -> Unit = {}) = apply {
-        addChild(PublishingExtensionBlock().apply(block))
+        addChild(PublishingExtensionBlock(this).apply(block))
     }
 
     fun signing(block: SigningExtensionBlock.() -> Unit = {}) = apply {

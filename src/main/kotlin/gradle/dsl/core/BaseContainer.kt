@@ -2,12 +2,30 @@ package gradle.dsl.core
 
 import kotlin.reflect.KClass
 
+interface DslProxy {
+    val proxyPath: String
+}
+
+interface ProxyCapable {
+    fun asProxy(path: String): DslProxy
+}
+
 abstract class BaseNamedContainer<D : DslBodyBlock>(
     blockName: String,
-    protected val proxyPath: String = blockName,
+    private val explicitProxyPath: String? = null,
     val autoRegisterContext: AutoRegisterContext? = null,
     open val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
-) : DslBlock(blockName) {
+) : DslBlock(blockName), DslProxy, ProxyCapable {
+
+    override val proxyPath: String
+        get() = explicitProxyPath ?: blockName
+
+    override fun asProxy(path: String): DslProxy = object : BaseNamedContainer<D>(
+        blockName = blockName,
+        explicitProxyPath = path,
+        autoRegisterContext = autoRegisterContext,
+        providers = providers
+    ) {}
 
     fun create(name: String) = apply {
         addChild(FunctionCall("create", listOf(name)))
@@ -47,7 +65,7 @@ abstract class BaseNamedContainer<D : DslBodyBlock>(
 
     inline fun <reified U : D> withType(type: KClass<out U>, noinline block: (U.() -> Unit)? = null) = apply {
         val dsl = block?.let { getProvider<U>().createDsl().apply(it) }
-        val element = FunctionCall("$`access$proxyPath`.withType", listOf(classRef(type)), dsl)
+        val element = FunctionCall("$proxyPath.withType", listOf(classRef(type)), dsl)
         autoRegisterContext?.autoRegister(element)
     }
 
@@ -56,18 +74,14 @@ abstract class BaseNamedContainer<D : DslBodyBlock>(
         @Suppress("UNCHECKED_CAST")
         return providers[U::class] as? DslProvider<U> ?: throw IllegalArgumentException("No DSL provider for type ${U::class}")
     }
-
-    @PublishedApi
-    internal val `access$proxyPath`: String
-        get() = proxyPath
 }
 
 abstract class BasePolymorphicContainer<D : DslBodyBlock>(
     blockName: String,
-    proxyPath: String = blockName,
+    explicitProxyPath: String? = null,
     autoRegisterContext: AutoRegisterContext? = null,
     override val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
-) : BaseNamedContainer<D>(blockName, proxyPath, autoRegisterContext, providers) {
+) : BaseNamedContainer<D>(blockName, explicitProxyPath, autoRegisterContext, providers) {
 
     fun create(name: String, type: KClass<out D>) = apply {
         addChild(FunctionCall("create", listOf(name, classRef(type))))

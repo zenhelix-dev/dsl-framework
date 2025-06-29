@@ -20,7 +20,7 @@ interface DslContainer : DslElement {
 
 abstract class DslBlock(
     open val blockName: String,
-    override val children: MutableList<DslElement> = mutableListOf()
+    override val children: MutableList<DslElement> = mutableListOf(),
 ) : DslContainer, AutoRegisterContext {
 
     override fun toCodeBlock(): CodeBlock = buildCodeBlock {

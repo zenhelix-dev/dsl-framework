@@ -22,17 +22,23 @@ class PublishingExtensionBlock(
 
 }
 
-class PublishingProxy(context: AutoRegisterContext) {
+class PublishingProxy(parentContext: AutoRegisterContext) {
 
-    val publications: PublicationsContainerBlock = PublicationsContainerBlock(context)
+    val publications: PublicationsContainerBlock = PublicationsContainerBlock(
+        autoRegisterContext = parentContext,
+        explicitProxyPath = "publishing.publications"
+    )
 
 }
 
-class PublicationsContainerBlock(autoRegisterContext: AutoRegisterContext? = null) : BasePolymorphicContainer<PublicationDsl>(
-    "publications",
-    proxyPath = "publishing.publications",
+class PublicationsContainerBlock(
+    autoRegisterContext: AutoRegisterContext? = null,
+    explicitProxyPath: String? = null
+) : BasePolymorphicContainer<PublicationDsl>(
+    blockName = "publications",
+    explicitProxyPath = explicitProxyPath,
     autoRegisterContext = autoRegisterContext,
-    mapOf(
+    providers = mapOf(
         MavenPublication::class to object : DslProvider<MavenPublication> {
             override fun createDsl() = MavenPublication()
         },
