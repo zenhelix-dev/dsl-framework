@@ -56,21 +56,21 @@ abstract class BasePolymorphicContainer<D : DslBodyBlock>(
 ) : BaseNamedContainer<D>(blockName, providers) {
 
     fun create(name: String, type: KClass<out D>) = apply {
-        addChild(FunctionCall("create", listOf(name, "${type.simpleName}::class")))
+        addChild(FunctionCall("create", listOf(name, classRef(type))))
     }
 
     inline fun <reified U : D> create(name: String, type: KClass<out U>, noinline block: (U.() -> Unit)? = null) = apply {
         val dsl = block?.let { getProvider<U>().createDsl().apply(it) }
-        addChild(FunctionCall("create", listOf(name, "${type.simpleName}::class"), dsl))
+        addChild(FunctionCall("create", listOf(name, classRef(type)), dsl))
     }
 
     fun register(name: String, type: KClass<out D>) = apply {
-        addChild(FunctionCall("register", listOf(name, "${type.simpleName}::class")))
+        addChild(FunctionCall("register", listOf(name, classRef(type))))
     }
 
     inline fun <reified U : D> register(name: String, type: KClass<out U>, noinline block: (U.() -> Unit)? = null) = apply {
         val dsl = block?.let { getProvider<U>().createDsl().apply(it) }
-        addChild(FunctionCall("register", listOf(name, "${type.simpleName}::class"), dsl))
+        addChild(FunctionCall("register", listOf(name, classRef(type)), dsl))
     }
 
 }

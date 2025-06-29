@@ -3,6 +3,8 @@ package gradle.dsl.core
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
+import gradle.dsl.core.FormattingHelper.formatArgument
+import gradle.dsl.core.FormattingHelper.formatArguments
 
 interface DslElement {
     fun toCodeBlock(): CodeBlock
@@ -51,26 +53,17 @@ class FunctionCall(
 ) : DslElement {
 
     override fun toCodeBlock(): CodeBlock {
-        val parametersFormatString = if (arguments.isNotEmpty()) {
-            buildString {
-                repeat(arguments.size) { index ->
-                    if (index > 0) append(", ")
-                    append("%S")
-                }
-            }
-        } else {
-            ""
-        }
+        val (formatSpecifiers, values) = formatArguments(arguments)
 
         val builder = CodeBlock.builder()
 
         if (body != null) {
             builder
-                .beginControlFlow("$name($parametersFormatString)", *arguments.toTypedArray())
+                .beginControlFlow("$name($formatSpecifiers)", *values)
                 .add(body.toCodeBlock())
                 .endControlFlow()
         } else {
-            builder.add("$name($parametersFormatString)\n", *arguments.toTypedArray())
+            builder.add("$name($formatSpecifiers)\n", *values)
         }
 
         return builder.build()
@@ -79,5 +72,8 @@ class FunctionCall(
 }
 
 data class PropertyAssignment(val name: String, val value: Any) : DslElement {
-    override fun toCodeBlock(): CodeBlock = CodeBlock.of("%L = %L\n", name, value)
+    override fun toCodeBlock(): CodeBlock {
+        val (formatSpecifier, value) = formatArgument(value)
+        return CodeBlock.of("%L = $formatSpecifier\n", name, value)
+    }
 }
