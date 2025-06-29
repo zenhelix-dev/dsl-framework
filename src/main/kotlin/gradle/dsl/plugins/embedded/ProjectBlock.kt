@@ -11,6 +11,12 @@ class ProjectBlock(override val blockName: String = "") : DslBlock(blockName) {
             addChild(PropertyAssignment("group", value))
         }
 
+    var version: String
+        get() = throw UnsupportedOperationException("version is write-only in DSL context")
+        set(value) {
+            addChild(PropertyAssignment("version", value))
+        }
+
     fun plugins(block: PluginsDependenciesSpecScopeBlock.() -> Unit = {}) = apply {
         addChild(PluginsDependenciesSpecScopeBlock().apply(block))
     }

@@ -21,6 +21,12 @@ class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
             elements.add(PropertyAssignment("group", value))
         }
 
+    var version: String
+        get() = throw UnsupportedOperationException("version is write-only in DSL context")
+        set(value) {
+            elements.add(PropertyAssignment("version", value))
+        }
+
     fun plugins(block: PluginsDependenciesSpecScopeBlock.() -> Unit = {}) = apply {
         elements.add(PluginsDependenciesSpecScopeBlock().apply(block))
     }
