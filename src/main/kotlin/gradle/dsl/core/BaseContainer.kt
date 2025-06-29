@@ -4,6 +4,8 @@ import kotlin.reflect.KClass
 
 abstract class BaseNamedContainer<D : DslBodyBlock>(
     blockName: String,
+    protected val proxyPath: String = blockName,
+    val autoRegisterContext: AutoRegisterContext? = null,
     open val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
 ) : DslBlock(blockName) {
 
@@ -43,17 +45,29 @@ abstract class BaseNamedContainer<D : DslBodyBlock>(
         addChild(FunctionCall("getByName", listOf(name), dsl))
     }
 
+    inline fun <reified U : D> withType(type: KClass<out U>, noinline block: (U.() -> Unit)? = null) = apply {
+        val dsl = block?.let { getProvider<U>().createDsl().apply(it) }
+        val element = FunctionCall("$`access$proxyPath`.withType", listOf(classRef(type)), dsl)
+        autoRegisterContext?.autoRegister(element)
+    }
+
     @PublishedApi
     internal inline fun <reified U : D> getProvider(): DslProvider<U> {
         @Suppress("UNCHECKED_CAST")
         return providers[U::class] as? DslProvider<U> ?: throw IllegalArgumentException("No DSL provider for type ${U::class}")
     }
+
+    @PublishedApi
+    internal val `access$proxyPath`: String
+        get() = proxyPath
 }
 
 abstract class BasePolymorphicContainer<D : DslBodyBlock>(
     blockName: String,
+    proxyPath: String = blockName,
+    autoRegisterContext: AutoRegisterContext? = null,
     override val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
-) : BaseNamedContainer<D>(blockName, providers) {
+) : BaseNamedContainer<D>(blockName, proxyPath, autoRegisterContext, providers) {
 
     fun create(name: String, type: KClass<out D>) = apply {
         addChild(FunctionCall("create", listOf(name, classRef(type))))

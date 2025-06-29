@@ -13,4 +13,8 @@ class SigningExtensionBlock : DslBlock("signing") {
         addChild(FunctionCall("useInMemoryPgpKeys", listOf(key, password)))
     }
 
+    fun sign(target: PublicationsContainerBlock) = apply {
+        addChild(FunctionCall("sign", listOf(target)))
+    }
+
 }

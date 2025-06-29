@@ -34,6 +34,12 @@ class GradleBuildDslBuilderTest {
 
                 signing {
                     useInMemoryPgpKeys("test-key", "test-pass")
+                    sign(publishing.publications)
+                }
+
+                publishing.publications.withType(MavenPublication::class) {
+                    pom {
+                    }
                 }
             }
         }
@@ -60,6 +66,11 @@ class GradleBuildDslBuilderTest {
             |    }
             |    signing {
             |        useInMemoryPgpKeys("test-key", "test-pass")
+            |        sign(publishing.publications)
+            |    }
+            |    publishing.publications.withType(MavenPublication::class) {
+            |        pom {
+            |        }
             |    }
             |}
             |

@@ -36,6 +36,7 @@ object FormattingHelper {
             value = arg.value
         )
 
+        is BaseNamedContainer<*> -> FormattedArgument("%L", arg.`access$proxyPath`)
         is String -> FormattedArgument("%S", arg)
         else -> FormattedArgument("%L", arg)
     }

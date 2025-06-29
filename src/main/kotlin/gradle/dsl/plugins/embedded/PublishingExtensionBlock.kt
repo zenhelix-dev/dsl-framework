@@ -1,5 +1,6 @@
 package gradle.dsl.plugins.embedded
 
+import gradle.dsl.core.AutoRegisterContext
 import gradle.dsl.core.BasePolymorphicContainer
 import gradle.dsl.core.DslBlock
 import gradle.dsl.core.DslBodyBlock
@@ -7,20 +8,31 @@ import gradle.dsl.core.DslProvider
 import gradle.dsl.core.FunctionCall
 import gradle.dsl.core.PropertyAssignment
 
-class PublishingExtensionBlock : DslBlock("publishing") {
+class PublishingExtensionBlock(
+    private val autoRegisterContext: AutoRegisterContext? = null
+) : DslBlock("publishing") {
 
     fun repositories(block: RepositoryHandlerBlock.() -> Unit = {}) = apply {
         addChild(RepositoryHandlerBlock().apply(block))
     }
 
     fun publications(block: PublicationsContainerBlock.() -> Unit = {}) = apply {
-        addChild(PublicationsContainerBlock().apply(block))
+        addChild(PublicationsContainerBlock(autoRegisterContext).apply(block))
     }
 
 }
 
-class PublicationsContainerBlock : BasePolymorphicContainer<PublicationDsl>(
-    "publications", mapOf(
+class PublishingProxy(context: AutoRegisterContext) {
+
+    val publications: PublicationsContainerBlock = PublicationsContainerBlock(context)
+
+}
+
+class PublicationsContainerBlock(autoRegisterContext: AutoRegisterContext? = null) : BasePolymorphicContainer<PublicationDsl>(
+    "publications",
+    proxyPath = "publishing.publications",
+    autoRegisterContext = autoRegisterContext,
+    mapOf(
         MavenPublication::class to object : DslProvider<MavenPublication> {
             override fun createDsl() = MavenPublication()
         },

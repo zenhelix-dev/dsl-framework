@@ -21,7 +21,7 @@ interface DslContainer : DslElement {
 abstract class DslBlock(
     open val blockName: String,
     override val children: MutableList<DslElement> = mutableListOf()
-) : DslContainer {
+) : DslContainer, AutoRegisterContext {
 
     override fun toCodeBlock(): CodeBlock = buildCodeBlock {
         beginControlFlow(blockName)
@@ -31,6 +31,9 @@ abstract class DslBlock(
         endControlFlow()
     }
 
+    override fun autoRegister(element: DslElement) {
+        addChild(element)
+    }
 }
 
 abstract class DslBodyBlock(
