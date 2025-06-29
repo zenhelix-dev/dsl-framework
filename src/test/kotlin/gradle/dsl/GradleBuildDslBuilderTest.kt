@@ -14,6 +14,19 @@ class GradleBuildDslBuilderTest {
                 id("java")
             }
 
+            publishing {
+                publications {
+                    create("test", MavenPublication::class)
+                }
+            }
+            signing {
+                sign(publishing.publications)
+            }
+            publishing.publications.withType(MavenPublication::class) {
+                pom {
+                }
+            }
+
             subprojects {
                 group = "com.example"
 
@@ -48,6 +61,18 @@ class GradleBuildDslBuilderTest {
             """
             |plugins {
             |    id("java")
+            |}
+            |publishing {
+            |    publications {
+            |        create("test", MavenPublication::class)
+            |    }
+            |}
+            |signing {
+            |    sign(publishing.publications)
+            |}
+            |publishing.publications.withType(MavenPublication::class) {
+            |    pom {
+            |    }
             |}
             |subprojects {
             |    group = "com.example"
