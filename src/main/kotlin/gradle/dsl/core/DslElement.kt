@@ -18,6 +18,22 @@ interface DslContainer : DslElement {
         children.add(element)
     }
 
+    fun findRoot(): DslContainer {
+        var current: DslElement? = this
+        var lastContainer: DslContainer = this
+
+        while (current != null) {
+            if (current is DslContainer) {
+                lastContainer = current
+                current = current.parent
+            } else {
+                break
+            }
+        }
+
+        return lastContainer
+    }
+
 }
 
 abstract class DslBlock(

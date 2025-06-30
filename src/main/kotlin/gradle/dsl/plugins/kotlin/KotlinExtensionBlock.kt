@@ -24,7 +24,6 @@ class KotlinCompilerOptionsBlock(parent: DslElement) : DslBlock("compilerOptions
         get() = throw UnsupportedOperationException("jvmTarget is write-only in DSL context")
         set(value) {
 //            val property = when (value) {
-//
 //                is JvmTargetReference -> {
 //                    (parent as? ImportAware)?.addImport("org.jetbrains.kotlin.gradle.dsl.JvmTarget")
 //                    value

@@ -11,7 +11,7 @@ abstract class AbstractScriptBuilder(
     protected val imports: MutableSet<Import> = mutableSetOf()
 ) {
 
-    protected fun addImport(import: Import) {
+    fun addImport(import: Import) {
         imports.add(import)
     }
 
