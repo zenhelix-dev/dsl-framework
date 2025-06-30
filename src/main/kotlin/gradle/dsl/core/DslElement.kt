@@ -34,6 +34,21 @@ interface DslContainer : DslElement {
         return lastContainer
     }
 
+    fun findImportAware(): ImportAware? {
+        var current: DslElement? = this
+        while (current != null) {
+            if (current is ImportAware) {
+                return current
+            }
+            if (current is DslContainer) {
+                current = current.parent
+            } else {
+                break
+            }
+        }
+        return null
+    }
+
 }
 
 abstract class DslBlock(

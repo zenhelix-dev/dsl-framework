@@ -15,7 +15,7 @@ import gradle.dsl.plugins.kotlin.KotlinExtensionBlock
 
 class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
 
-    private val root: ProjectBlock = ProjectBlock(blockName = "", parent = null)
+    private val root: ProjectBlock = ProjectBlock(blockName = "", parent = null, importAware = this)
 
     init {
         elements.add(root)

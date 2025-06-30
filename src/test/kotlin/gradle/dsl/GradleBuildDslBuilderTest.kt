@@ -48,7 +48,10 @@ class GradleBuildDslBuilderTest {
                         create("test", IvyPublication::class)
                     }
                 }
-
+                publishing.publications.withType(MavenPublication::class) {
+                    pom {
+                    }
+                }
                 signing {
                     useInMemoryPgpKeys("test-key", "test-pass")
                     sign(publishing.publications)
@@ -92,6 +95,10 @@ class GradleBuildDslBuilderTest {
             |            create("test", MavenPublication::class) {
             |            }
             |            create("test", IvyPublication::class)
+            |        }
+            |    }
+            |    publishing.publications.withType(MavenPublication::class) {
+            |        pom {
             |        }
             |    }
             |    signing {

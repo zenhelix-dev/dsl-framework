@@ -2,10 +2,20 @@ package gradle.dsl.plugins.embedded
 
 import gradle.dsl.core.DslBlock
 import gradle.dsl.core.DslElement
+import gradle.dsl.core.Import
+import gradle.dsl.core.ImportAware
 import gradle.dsl.core.PropertyAssignment
 import gradle.dsl.plugins.kotlin.KotlinExtensionBlock
 
-class ProjectBlock(override val blockName: String = "", parent: DslElement?) : DslBlock(blockName, parent) {
+class ProjectBlock(
+    override val blockName: String = "",
+    parent: DslElement?,
+    private val importAware: ImportAware? = null
+) : DslBlock(blockName, parent), ImportAware {
+
+    override fun addImport(import: Import) {
+        importAware?.addImport(import)
+    }
 
     var group: String
         get() = throw UnsupportedOperationException("group is write-only in DSL context")
