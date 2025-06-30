@@ -2,9 +2,10 @@ package gradle.dsl.plugins.embedded
 
 import gradle.dsl.core.BaseNamedContainer
 import gradle.dsl.core.DslBodyBlock
+import gradle.dsl.core.DslElement
 import gradle.dsl.core.FunctionCall
 
-class RepositoryHandlerBlock : BaseNamedContainer<DslBodyBlock>("repositories") {
+class RepositoryHandlerBlock(parent: DslElement) : BaseNamedContainer<DslBodyBlock>("repositories", parent) {
 
     fun mavenCentral() = apply {
         addChild(FunctionCall("mavenCentral"))

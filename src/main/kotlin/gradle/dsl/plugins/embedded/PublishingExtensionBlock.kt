@@ -4,27 +4,30 @@ import gradle.dsl.core.AutoRegisterContext
 import gradle.dsl.core.BasePolymorphicContainer
 import gradle.dsl.core.DslBlock
 import gradle.dsl.core.DslBodyBlock
+import gradle.dsl.core.DslElement
 import gradle.dsl.core.DslProvider
 import gradle.dsl.core.FunctionCall
 import gradle.dsl.core.PropertyAssignment
 
 class PublishingExtensionBlock(
+    parent: DslElement,
     private val autoRegisterContext: AutoRegisterContext? = null
-) : DslBlock("publishing") {
+) : DslBlock("publishing", parent) {
 
     fun repositories(block: RepositoryHandlerBlock.() -> Unit = {}) = apply {
-        addChild(RepositoryHandlerBlock().apply(block))
+        addChild(RepositoryHandlerBlock(this).apply(block))
     }
 
     fun publications(block: PublicationsContainerBlock.() -> Unit = {}) = apply {
-        addChild(PublicationsContainerBlock(autoRegisterContext).apply(block))
+        addChild(PublicationsContainerBlock(this, autoRegisterContext).apply(block))
     }
 
 }
 
-class PublishingProxy(parentContext: AutoRegisterContext? = null) {
+class PublishingProxy(parent: DslElement, parentContext: AutoRegisterContext? = null) {
 
     val publications: PublicationsContainerBlock = PublicationsContainerBlock(
+        parent = parent,
         autoRegisterContext = parentContext,
         explicitProxyPath = "publishing.publications"
     )
@@ -32,10 +35,12 @@ class PublishingProxy(parentContext: AutoRegisterContext? = null) {
 }
 
 class PublicationsContainerBlock(
+    parent: DslElement,
     autoRegisterContext: AutoRegisterContext? = null,
     explicitProxyPath: String? = null
 ) : BasePolymorphicContainer<PublicationDsl>(
     blockName = "publications",
+    parent = parent,
     explicitProxyPath = explicitProxyPath,
     autoRegisterContext = autoRegisterContext,
     providers = mapOf(
@@ -89,7 +94,7 @@ class MavenPublication : PublicationDsl() {
     }
 
     fun pom(block: PomDsl.() -> Unit) = apply {
-        addChild(PomDsl().apply(block))
+        addChild(PomDsl(this).apply(block))
     }
 }
 
@@ -122,11 +127,11 @@ class IvyPublication : PublicationDsl() {
     }
 
     fun descriptor(block: IvyDescriptorDsl.() -> Unit) = apply {
-        addChild(IvyDescriptorDsl().apply(block))
+        addChild(IvyDescriptorDsl(this).apply(block))
     }
 }
 
-class PomDsl : DslBlock("pom") {
+class PomDsl(parent: DslElement) : DslBlock("pom", parent) {
 
     var name: String
         get() = throw UnsupportedOperationException("name is write-only in DSL context")
@@ -147,7 +152,7 @@ class PomDsl : DslBlock("pom") {
         }
 }
 
-class IvyDescriptorDsl : DslBlock("descriptor") {
+class IvyDescriptorDsl(parent: DslElement) : DslBlock("descriptor", parent) {
 
     var status: String
         get() = throw UnsupportedOperationException("status is write-only in DSL context")

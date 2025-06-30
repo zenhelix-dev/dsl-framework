@@ -2,11 +2,12 @@ package gradle.dsl.plugins.embedded
 
 import gradle.dsl.core.ArgumentType
 import gradle.dsl.core.DslBlock
+import gradle.dsl.core.DslElement
 import gradle.dsl.core.FunctionCall
 import gradle.dsl.core.PropertyAssignment
 import gradle.dsl.core.TypedArgument
 
-class JavaExtensionBlock : DslBlock("java") {
+class JavaExtensionBlock(parent: DslElement) : DslBlock("java", parent) {
 
     var sourceCompatibility: Any
         get() = throw UnsupportedOperationException("sourceCompatibility is write-only in DSL context")
@@ -39,11 +40,11 @@ class JavaExtensionBlock : DslBlock("java") {
     }
 
     fun toolchain(block: JavaToolchainBlock.() -> Unit) = apply {
-        addChild(JavaToolchainBlock().apply(block))
+        addChild(JavaToolchainBlock(this).apply(block))
     }
 
 }
 
-class JavaToolchainBlock : DslBlock("toolchain") {
+class JavaToolchainBlock(parent: DslElement) : DslBlock("toolchain", parent) {
 
 }

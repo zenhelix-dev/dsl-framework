@@ -11,6 +11,7 @@ interface DslElement {
 }
 
 interface DslContainer : DslElement {
+    val parent: DslElement?
     val children: MutableList<DslElement>
 
     fun addChild(element: DslElement) {
@@ -20,7 +21,8 @@ interface DslContainer : DslElement {
 
 abstract class DslBlock(
     open val blockName: String,
-    override val children: MutableList<DslElement> = mutableListOf(),
+    override val parent: DslElement?,
+    override val children: MutableList<DslElement> = mutableListOf()
 ) : DslContainer, AutoRegisterContext {
 
     override fun toCodeBlock(): CodeBlock = buildCodeBlock {
@@ -38,8 +40,9 @@ abstract class DslBlock(
 
 abstract class DslBodyBlock(
     blockName: String,
+    parent: DslElement? = null,
     override val children: MutableList<DslElement> = mutableListOf()
-) : DslBlock(blockName, children) {
+) : DslBlock(blockName, parent, children) {
 
     override fun toCodeBlock(): CodeBlock = buildCodeBlock {
         withIndent {

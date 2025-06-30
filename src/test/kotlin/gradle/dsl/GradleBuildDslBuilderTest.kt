@@ -2,6 +2,7 @@ package gradle.dsl
 
 import gradle.dsl.plugins.embedded.IvyPublication
 import gradle.dsl.plugins.embedded.MavenPublication
+import gradle.dsl.plugins.kotlin.JvmTarget
 import org.gradle.api.JavaVersion
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -134,6 +135,7 @@ class GradleBuildDslBuilderTest {
                 explicitApi()
 
                 compilerOptions {
+                    jvmTarget = JvmTarget.fromTarget(JavaVersion.VERSION_17.toString())
                 }
             }
 

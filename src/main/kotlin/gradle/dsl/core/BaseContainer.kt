@@ -6,26 +6,16 @@ interface DslProxy {
     val proxyPath: String
 }
 
-interface ProxyCapable {
-    fun asProxy(path: String): DslProxy
-}
-
 abstract class BaseNamedContainer<D : DslBodyBlock>(
     blockName: String,
+    parent: DslElement,
     private val explicitProxyPath: String? = null,
     val autoRegisterContext: AutoRegisterContext? = null,
-    open val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
-) : DslBlock(blockName), DslProxy, ProxyCapable {
+    open val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap(),
+) : DslBlock(blockName, parent), DslProxy {
 
     override val proxyPath: String
         get() = explicitProxyPath ?: blockName
-
-    override fun asProxy(path: String): DslProxy = object : BaseNamedContainer<D>(
-        blockName = blockName,
-        explicitProxyPath = path,
-        autoRegisterContext = autoRegisterContext,
-        providers = providers
-    ) {}
 
     fun create(name: String) = apply {
         addChild(FunctionCall("create", listOf(name)))
@@ -78,10 +68,11 @@ abstract class BaseNamedContainer<D : DslBodyBlock>(
 
 abstract class BasePolymorphicContainer<D : DslBodyBlock>(
     blockName: String,
+    parent: DslElement,
     explicitProxyPath: String? = null,
     autoRegisterContext: AutoRegisterContext? = null,
     override val providers: Map<KClass<out D>, DslProvider<out D>> = emptyMap()
-) : BaseNamedContainer<D>(blockName, explicitProxyPath, autoRegisterContext, providers) {
+) : BaseNamedContainer<D>(blockName, parent, explicitProxyPath, autoRegisterContext, providers) {
 
     fun create(name: String, type: KClass<out D>) = apply {
         addChild(FunctionCall("create", listOf(name, classRef(type))))

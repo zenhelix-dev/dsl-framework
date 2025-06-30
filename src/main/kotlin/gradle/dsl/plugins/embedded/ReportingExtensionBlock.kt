@@ -1,6 +1,7 @@
 package gradle.dsl.plugins.embedded
 
 import gradle.dsl.core.DslBlock
+import gradle.dsl.core.DslElement
 
-class ReportingExtensionBlock : DslBlock("TODO") {
+class ReportingExtensionBlock(parent: DslElement) : DslBlock("TODO", parent) {
 }
