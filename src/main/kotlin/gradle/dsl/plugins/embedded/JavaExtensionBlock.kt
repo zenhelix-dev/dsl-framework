@@ -6,14 +6,15 @@ import gradle.dsl.core.DslElement
 import gradle.dsl.core.FunctionCall
 import gradle.dsl.core.PropertyAssignment
 import gradle.dsl.core.TypedArgument
+import org.gradle.api.JavaVersion
 
 class JavaExtensionBlock(parent: DslElement) : DslBlock("java", parent) {
 
     var sourceCompatibility: Any
         get() = throw UnsupportedOperationException("sourceCompatibility is write-only in DSL context")
         set(value) {
-            val property = if (value is org.gradle.api.JavaVersion) {
-                TypedArgument(org.gradle.api.JavaVersion::class.simpleName + "." + value.name, ArgumentType.CODE)
+            val property = if (value is JavaVersion) {
+                TypedArgument("${JavaVersion::class.simpleName}.${value.name}", ArgumentType.CODE)
             } else {
                 value
             }
@@ -23,8 +24,8 @@ class JavaExtensionBlock(parent: DslElement) : DslBlock("java", parent) {
     var targetCompatibility: Any
         get() = throw UnsupportedOperationException("targetCompatibility is write-only in DSL context")
         set(value) {
-            val property = if (value is org.gradle.api.JavaVersion) {
-                TypedArgument(org.gradle.api.JavaVersion::class.simpleName + "." + value.name, ArgumentType.CODE)
+            val property = if (value is JavaVersion) {
+                TypedArgument("${JavaVersion::class.simpleName}.${value.name}", ArgumentType.CODE)
             } else {
                 value
             }

@@ -18,6 +18,12 @@ class PublishingExtensionBlock(
         addChild(RepositoryHandlerBlock(this).apply(block))
     }
 
+    val publishing: PublishingProxy = PublishingProxy(this, object : AutoRegisterContext {
+        override fun autoRegister(element: DslElement) {
+            this@PublishingExtensionBlock.addChild(element)
+        }
+    })
+
     fun publications(block: PublicationsContainerBlock.() -> Unit = {}) = apply {
         addChild(PublicationsContainerBlock(this, autoRegisterContext).apply(block))
     }

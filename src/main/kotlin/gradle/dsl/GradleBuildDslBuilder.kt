@@ -1,8 +1,5 @@
 package gradle.dsl
 
-import gradle.dsl.core.AutoRegisterContext
-import gradle.dsl.core.DslElement
-import gradle.dsl.core.PropertyAssignment
 import gradle.dsl.plugins.embedded.GradlePluginExtensionBlock
 import gradle.dsl.plugins.embedded.JavaExtensionBlock
 import gradle.dsl.plugins.embedded.PluginsDependenciesSpecScopeBlock
@@ -18,82 +15,74 @@ import gradle.dsl.plugins.kotlin.KotlinExtensionBlock
 
 class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
 
-    private val root: ProjectBlock = ProjectBlock(parent = null)
+    private val root: ProjectBlock = ProjectBlock(blockName = "", parent = null)
+
+    init {
+        elements.add(root)
+    }
 
     var group: String
-        get() = throw UnsupportedOperationException("group is write-only in DSL context")
+        get() = root.group
         set(value) {
-            elements.add(PropertyAssignment("group", value))
+            root.group = value
         }
 
     var version: String
-        get() = throw UnsupportedOperationException("version is write-only in DSL context")
+        get() = root.version
         set(value) {
-            elements.add(PropertyAssignment("version", value))
+            root.version = value
         }
 
     fun plugins(block: PluginsDependenciesSpecScopeBlock.() -> Unit = {}) = apply {
-        elements.add(PluginsDependenciesSpecScopeBlock(root).apply(block))
+        root.plugins(block)
     }
 
     fun subprojects(block: ProjectBlock.() -> Unit = {}) = apply {
-        elements.add(ProjectBlock("subprojects", root).apply(block))
+        root.subprojects(block)
     }
 
     fun allprojects(block: ProjectBlock.() -> Unit = {}) = apply {
-        elements.add(ProjectBlock("allprojects", root).apply(block))
+        root.allprojects(block)
     }
 
     fun tasks(block: TasksBlock.() -> Unit = {}) = apply {
-        elements.add(TasksBlock(root, object : AutoRegisterContext {
-            override fun autoRegister(element: DslElement) {
-                elements.add(element)
-            }
-        }).apply(block))
+        root.tasks(block)
     }
 
     fun repositories(block: RepositoryHandlerBlock.() -> Unit = {}) = apply {
-        elements.add(RepositoryHandlerBlock(root).apply(block))
+        root.repositories(block)
     }
 
     fun java(block: JavaExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(JavaExtensionBlock(root).apply(block))
+        root.java(block)
     }
 
     fun testing(block: TestingExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(TestingExtensionBlock(root).apply(block))
+        root.testing(block)
     }
 
     fun gradlePlugin(block: GradlePluginExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(GradlePluginExtensionBlock(root).apply(block))
+        root.gradlePlugin(block)
     }
 
     fun reporting(block: ReportingExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(ReportingExtensionBlock(root).apply(block))
+        root.reporting(block)
     }
 
-    val publishing: PublishingProxy = PublishingProxy(root, object : AutoRegisterContext {
-        override fun autoRegister(element: DslElement) {
-            elements.add(element)
-        }
-    })
+    val publishing: PublishingProxy = root.publishing
 
     fun publishing(block: PublishingExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(PublishingExtensionBlock(root, object : AutoRegisterContext {
-            override fun autoRegister(element: DslElement) {
-                elements.add(element)
-            }
-        }).apply(block))
+        root.publishing(block)
     }
 
     fun signing(block: SigningExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(SigningExtensionBlock(root).apply(block))
+        root.signing(block)
     }
 
     // ===== external
 
     fun kotlin(block: KotlinExtensionBlock.() -> Unit = {}) = apply {
-        elements.add(KotlinExtensionBlock(root).apply(block))
+        root.kotlin(block)
     }
 
 }

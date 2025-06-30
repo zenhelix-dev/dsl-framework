@@ -1,8 +1,11 @@
 package gradle.dsl.plugins.kotlin
 
+import gradle.dsl.core.ArgumentType
 import gradle.dsl.core.DslBlock
 import gradle.dsl.core.DslElement
 import gradle.dsl.core.FunctionCall
+import gradle.dsl.core.PropertyAssignment
+import gradle.dsl.core.TypedArgument
 
 class KotlinExtensionBlock(parent: DslElement) : DslBlock("kotlin", parent) {
 
@@ -21,12 +24,15 @@ class KotlinCompilerOptionsBlock(parent: DslElement) : DslBlock("compilerOptions
         get() = throw UnsupportedOperationException("jvmTarget is write-only in DSL context")
         set(value) {
 //            val property = when (value) {
+//
 //                is JvmTargetReference -> {
 //                    (parent as? ImportAware)?.addImport("org.jetbrains.kotlin.gradle.dsl.JvmTarget")
 //                    value
 //                }
+//
 //                else -> value
 //            }
-//            addChild(PropertyAssignment("jvmTarget", property))
+
+            addChild(PropertyAssignment("jvmTarget", TypedArgument("${JvmTarget::class.simpleName}.${value.name}", ArgumentType.CODE)))
         }
 }

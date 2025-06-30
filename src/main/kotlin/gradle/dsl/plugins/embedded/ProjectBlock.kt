@@ -3,6 +3,7 @@ package gradle.dsl.plugins.embedded
 import gradle.dsl.core.DslBlock
 import gradle.dsl.core.DslElement
 import gradle.dsl.core.PropertyAssignment
+import gradle.dsl.plugins.kotlin.KotlinExtensionBlock
 
 class ProjectBlock(override val blockName: String = "", parent: DslElement?) : DslBlock(blockName, parent) {
 
@@ -26,6 +27,10 @@ class ProjectBlock(override val blockName: String = "", parent: DslElement?) : D
         addChild(ProjectBlock("subprojects", this).apply(block))
     }
 
+    fun allprojects(block: ProjectBlock.() -> Unit = {}) = apply {
+        addChild(ProjectBlock("allprojects", this).apply(block))
+    }
+
     fun tasks(block: TasksBlock.() -> Unit = {}) = apply {
         addChild(TasksBlock(this).apply(block))
     }
@@ -43,5 +48,28 @@ class ProjectBlock(override val blockName: String = "", parent: DslElement?) : D
     fun signing(block: SigningExtensionBlock.() -> Unit = {}) = apply {
         addChild(SigningExtensionBlock(this).apply(block))
     }
+
+    fun java(block: JavaExtensionBlock.() -> Unit = {}) = apply {
+        addChild(JavaExtensionBlock(this).apply(block))
+    }
+
+    fun testing(block: TestingExtensionBlock.() -> Unit = {}) = apply {
+        addChild(TestingExtensionBlock(this).apply(block))
+    }
+
+    fun gradlePlugin(block: GradlePluginExtensionBlock.() -> Unit = {}) = apply {
+        addChild(GradlePluginExtensionBlock(this).apply(block))
+    }
+
+    fun reporting(block: ReportingExtensionBlock.() -> Unit = {}) = apply {
+        addChild(ReportingExtensionBlock(this).apply(block))
+    }
+
+    // ===== external
+
+    fun kotlin(block: KotlinExtensionBlock.() -> Unit = {}) = apply {
+        addChild(KotlinExtensionBlock(this).apply(block))
+    }
+
 
 }

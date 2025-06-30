@@ -17,6 +17,7 @@ interface DslContainer : DslElement {
     fun addChild(element: DslElement) {
         children.add(element)
     }
+
 }
 
 abstract class DslBlock(
@@ -26,11 +27,15 @@ abstract class DslBlock(
 ) : DslContainer, AutoRegisterContext {
 
     override fun toCodeBlock(): CodeBlock = buildCodeBlock {
-        beginControlFlow(blockName)
-        withIndent {
+        if (parent == null) {
             children.forEach { add("%L", it.toCodeBlock()) }
+        } else {
+            beginControlFlow(blockName)
+            withIndent {
+                children.forEach { add("%L", it.toCodeBlock()) }
+            }
+            endControlFlow()
         }
-        endControlFlow()
     }
 
     override fun autoRegister(element: DslElement) {

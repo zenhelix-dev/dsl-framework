@@ -16,6 +16,8 @@ class GradleBuildDslBuilderTest {
                 id("java")
             }
 
+            group = "test"
+
             publishing {
                 publications {
                     create("test", MavenPublication::class)
@@ -64,6 +66,7 @@ class GradleBuildDslBuilderTest {
             |plugins {
             |    id("java")
             |}
+            |group = "test"
             |publishing {
             |    publications {
             |        create("test", MavenPublication::class)
