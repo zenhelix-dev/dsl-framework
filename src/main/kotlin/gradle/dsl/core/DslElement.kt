@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.withIndent
 import gradle.dsl.core.FormattingHelper.formatArgument
 import gradle.dsl.core.FormattingHelper.formatArguments
 import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.jvmErasure
 
 interface DslElement {
     fun toCodeBlock(): CodeBlock
@@ -140,11 +141,32 @@ data class DelegatedPropertyDeclaration(
 class ProjectDelegateProvider(private val container: DslContainer) {
 
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): ProjectDelegateProvider {
-        container.addChild(DelegatedPropertyDeclaration(prop.name, "String?", "project"))
+        val typeName = formatTypeName(prop.returnType)
+        container.addChild(DelegatedPropertyDeclaration(prop.name, typeName, "project"))
         return this
     }
 
     operator fun <T> getValue(thisRef: Any?, property: KProperty<*>): T? = null
+
+    private fun formatTypeName(kType: kotlin.reflect.KType): String {
+        val classifier = kType.classifier
+        val isNullable = kType.isMarkedNullable
+//TODO more generic
+        return when (classifier) {
+            String::class -> if (isNullable) "String?" else "String"
+            Int::class -> if (isNullable) "Int?" else "Int"
+            Boolean::class -> if (isNullable) "Boolean?" else "Boolean"
+            List::class -> {
+                val typeArg = kType.arguments.firstOrNull()?.type?.jvmErasure?.simpleName ?: "String"
+                if (isNullable) "List<$typeArg>?" else "List<$typeArg>"
+            }
+
+            else -> {
+                val simpleName = (classifier as? kotlin.reflect.KClass<*>)?.simpleName ?: "Any"
+                if (isNullable) "$simpleName?" else simpleName
+            }
+        }
+    }
 }
 
 val DslContainer.project: ProjectDelegateProvider
