@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
 import gradle.dsl.core.FormattingHelper.formatArgument
 import gradle.dsl.core.FormattingHelper.formatArguments
+import kotlin.reflect.KProperty
 
 interface DslElement {
     fun toCodeBlock(): CodeBlock
@@ -126,3 +127,25 @@ data class VariableElement(val value: Any) : DslElement {
         return CodeBlock.of("$formatSpecifier\n", value)
     }
 }
+
+
+data class DelegatedPropertyDeclaration(
+    val name: String,
+    val type: String,
+    val delegate: String
+) : DslElement {
+    override fun toCodeBlock(): CodeBlock = CodeBlock.of("val %L: %L by %L\n", name, type, delegate)
+}
+
+class ProjectDelegateProvider(private val container: DslContainer) {
+
+    operator fun provideDelegate(thisRef: Nothing?, prop: KProperty<*>): ProjectDelegateProvider {
+        container.addChild(DelegatedPropertyDeclaration(prop.name, "String?", "project"))
+        return this
+    }
+
+    operator fun <T> getValue(thisRef: Nothing?, property: KProperty<*>): T? = null
+}
+
+val DslContainer.project: ProjectDelegateProvider
+    get() = ProjectDelegateProvider(this)

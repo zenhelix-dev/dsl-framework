@@ -1,5 +1,6 @@
 package gradle.dsl
 
+import gradle.dsl.core.project
 import gradle.dsl.plugins.embedded.IvyPublication
 import gradle.dsl.plugins.embedded.MavenPublication
 import gradle.dsl.plugins.kotlin.JvmTarget
@@ -178,11 +179,64 @@ class GradleBuildDslBuilderTest {
             |kotlin {
             |    explicitApi()
             |    compilerOptions {
-            |        jvmTarget = JvmTarget.fromTarget(JavaVersion.VERSION_17.toString())
+            |        jvmTarget = JvmTarget.JVM_17
             |    }
             |}
             |
         """.trimMargin(), output
         )
     }
+
+    @Test
+    fun `test by`() {
+        val output = buildGradleKts {
+            plugins {
+                java
+                id("com.gradle.plugin-publish") version "1.3.1"
+                signing
+            }
+
+            group = "io.github.zenhelix"
+
+            publishing {
+                repositories {
+                    mavenLocal()
+                }
+            }
+
+            signing {
+                val signingKeyId: String? by project
+                val signingKey: String? by project
+                val signingPassword: String? by project
+
+                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+                sign(publishing.publications)
+            }
+        }
+
+        assertEquals(
+            """
+            |plugins {
+            |    java
+            |    id("com.gradle.plugin-publish") version "1.3.1"
+            |    signing
+            |}
+            |group = "io.github.zenhelix"
+            |publishing {
+            |    repositories {
+            |        mavenLocal()
+            |    }
+            |}
+            |signing {
+            |    val signingKeyId: String? by project
+            |    val signingKey: String? by project
+            |    val signingPassword: String? by project
+            |    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+            |    sign(publishing.publications)
+            |}
+            |
+        """.trimMargin(), output
+        )
+    }
+
 }
