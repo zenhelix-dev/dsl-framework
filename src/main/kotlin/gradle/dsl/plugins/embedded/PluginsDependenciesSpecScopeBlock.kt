@@ -1,15 +1,16 @@
 package gradle.dsl.plugins.embedded
 
+import com.squareup.kotlinpoet.CodeBlock
 import gradle.dsl.core.DslBlock
+import gradle.dsl.core.DslContainer
 import gradle.dsl.core.DslElement
-import gradle.dsl.core.FunctionCall
 import gradle.dsl.core.VariableElement
 
 @Suppress("PropertyName")
 class PluginsDependenciesSpecScopeBlock(parent: DslElement) : DslBlock("plugins", parent) {
 
-    fun id(pluginId: String) = apply {
-        addChild(FunctionCall("id", listOf(pluginId)))
+    fun id(pluginId: String): PluginDependencySpec {
+        return PluginDependencySpec(pluginId, this)
     }
 
     val `kotlin-dsl`: Unit by lazy { addChild(VariableElement("`kotlin-dsl`")) }
@@ -23,4 +24,37 @@ class PluginsDependenciesSpecScopeBlock(parent: DslElement) : DslBlock("plugins"
     val kotlin: Unit by lazy { addChild(VariableElement("kotlin")) }
     val application: Unit by lazy { addChild(VariableElement("application")) }
 
+}
+
+class PluginDependencySpec(
+    private val pluginId: String,
+    private val container: DslContainer
+) {
+    private var hasVersion = false
+
+    init {
+        container.addChild(PluginDependencyCall(pluginId, null))
+    }
+
+    infix fun version(version: String) {
+        if (!hasVersion) {
+            container.children.removeLastOrNull()
+            container.addChild(PluginDependencyCall(pluginId, version))
+            hasVersion = true
+        }
+    }
+}
+
+class PluginDependencyCall(
+    private val pluginId: String,
+    private val version: String? = null
+) : DslElement {
+
+    override fun toCodeBlock(): CodeBlock {
+        return if (version != null) {
+            CodeBlock.of("id(%S) version %S\n", pluginId, version)
+        } else {
+            CodeBlock.of("id(%S)\n", pluginId)
+        }
+    }
 }

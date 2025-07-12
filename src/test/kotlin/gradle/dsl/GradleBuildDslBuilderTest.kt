@@ -119,7 +119,8 @@ class GradleBuildDslBuilderTest {
     fun `other gradle build success`() {
         val output = buildGradleKts {
             plugins {
-                id("com.gradle.plugin-publish")
+                java
+                id("com.gradle.plugin-publish") version "1.3.1"
                 `kotlin-dsl`
                 signing
                 `jacoco-report-aggregation`
@@ -153,7 +154,34 @@ class GradleBuildDslBuilderTest {
 
         assertEquals(
             """
-            
+            |import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+            |
+            |plugins {
+            |    java
+            |    id("com.gradle.plugin-publish") version "1.3.1"
+            |    `kotlin-dsl`
+            |    signing
+            |    `jacoco-report-aggregation`
+            |    `jvm-test-suite`
+            |}
+            |group = "io.github.zenhelix"
+            |repositories {
+            |    mavenCentral()
+            |    gradlePluginPortal()
+            |}
+            |java {
+            |    sourceCompatibility = JavaVersion.VERSION_17
+            |    targetCompatibility = JavaVersion.VERSION_17
+            |    withJavadocJar()
+            |    withSourcesJar()
+            |}
+            |kotlin {
+            |    explicitApi()
+            |    compilerOptions {
+            |        jvmTarget = JvmTarget.fromTarget(JavaVersion.VERSION_17.toString())
+            |    }
+            |}
+            |
         """.trimMargin(), output
         )
     }

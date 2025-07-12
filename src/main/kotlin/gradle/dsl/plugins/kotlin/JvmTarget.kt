@@ -24,7 +24,7 @@ enum class JvmTarget(val target: String) {
 
         fun fromTarget(target: String): JvmTarget = entries.firstOrNull { it.target == target } ?: throw IllegalArgumentException(
             "Unknown Kotlin JVM target: $target,\navailable targets are ${
-                JvmTarget.values().joinToString { it.target }
+                entries.joinToString { it.target }
             }\n" + "Prefer configuring 'jvmTarget' value via 'compilerOptions' DSL: https://kotl.in/compiler-options-dsl"
         )
 
