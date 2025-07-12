@@ -26,7 +26,9 @@ object FormattingHelper {
         val value: Any
     )
 
-    fun formatArgument(arg: Any): FormattedArgument = when (arg) {
+    fun formatArgument(arg: Any?): FormattedArgument = when (arg) {
+        null -> FormattedArgument("%L", "null")
+        is VariableReference -> FormattedArgument("%L", arg.variableName)
         is TypedArgument -> FormattedArgument(
             formatSpecifier = if (arg.type == ArgumentType.STRING) {
                 "%S"
@@ -35,15 +37,13 @@ object FormattingHelper {
             },
             value = arg.value
         )
-
         is DslProxy -> FormattedArgument("%L", arg.proxyPath)
         is String -> FormattedArgument("%S", arg)
         else -> FormattedArgument("%L", arg)
     }
 
-    fun formatArguments(arguments: List<Any>): Pair<String, Array<Any>> {
+    fun formatArguments(arguments: List<Any?>): Pair<String, Array<Any>> {
         val formatted = arguments.map { formatArgument(it) }
         return formatted.joinToString(", ") { it.formatSpecifier } to formatted.map { it.value }.toTypedArray()
     }
-
 }
