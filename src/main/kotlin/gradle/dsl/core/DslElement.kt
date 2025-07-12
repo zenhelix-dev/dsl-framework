@@ -139,12 +139,12 @@ data class DelegatedPropertyDeclaration(
 
 class ProjectDelegateProvider(private val container: DslContainer) {
 
-    operator fun provideDelegate(thisRef: Nothing?, prop: KProperty<*>): ProjectDelegateProvider {
+    operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): ProjectDelegateProvider {
         container.addChild(DelegatedPropertyDeclaration(prop.name, "String?", "project"))
         return this
     }
 
-    operator fun <T> getValue(thisRef: Nothing?, property: KProperty<*>): T? = null
+    operator fun <T> getValue(thisRef: Any?, property: KProperty<*>): T? = null
 }
 
 val DslContainer.project: ProjectDelegateProvider
