@@ -28,15 +28,11 @@ object FormattingHelper {
 
     fun formatArgument(arg: Any?): FormattedArgument = when (arg) {
         null -> FormattedArgument("%L", "null")
-        is VariableReference -> FormattedArgument("%L", arg.variableName)
         is TypedArgument -> FormattedArgument(
-            formatSpecifier = if (arg.type == ArgumentType.STRING) {
-                "%S"
-            } else {
-                "%L"
-            },
+            formatSpecifier = if (arg.type == ArgumentType.STRING) "%S" else "%L",
             value = arg.value
         )
+
         is DslProxy -> FormattedArgument("%L", arg.proxyPath)
         is String -> FormattedArgument("%S", arg)
         else -> FormattedArgument("%L", arg)

@@ -5,8 +5,6 @@ import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
 import gradle.dsl.core.FormattingHelper.formatArgument
 import gradle.dsl.core.FormattingHelper.formatArguments
-import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.jvmErasure
 
 interface DslElement {
     fun toCodeBlock(): CodeBlock
@@ -125,64 +123,3 @@ data class VariableElement(val value: Any) : DslElement {
         return CodeBlock.of("$formatSpecifier\n", value)
     }
 }
-
-interface VariableReference {
-    val variableName: String
-}
-
-@JvmInline
-value class ProjectProperty(override val variableName: String) : VariableReference {
-    override fun toString(): String = variableName
-}
-
-data class DelegatedPropertyDeclaration(
-    val name: String,
-    val type: String,
-    val delegate: String
-) : DslElement {
-    override fun toCodeBlock(): CodeBlock = CodeBlock.of("val %L: %L by %L\n", name, type, delegate)
-}
-
-class ProjectDelegateProvider(private val container: DslContainer) {
-
-    operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): ProjectDelegateAccessor {
-        val typeName = formatTypeName(prop.returnType)
-        container.addChild(DelegatedPropertyDeclaration(prop.name, typeName, "project"))
-        return ProjectDelegateAccessor(prop.name)
-    }
-
-    private fun formatTypeName(kType: kotlin.reflect.KType): String {
-        val classifier = kType.classifier
-        val isNullable = kType.isMarkedNullable
-
-        return when (classifier) {
-            String::class -> if (isNullable) "String?" else "String"
-            Int::class -> if (isNullable) "Int?" else "Int"
-            Boolean::class -> if (isNullable) "Boolean?" else "Boolean"
-            Long::class -> if (isNullable) "Long?" else "Long"
-            Double::class -> if (isNullable) "Double?" else "Double"
-            Float::class -> if (isNullable) "Float?" else "Float"
-            List::class -> {
-                val typeArg = kType.arguments.firstOrNull()?.type?.jvmErasure?.simpleName ?: "String"
-                if (isNullable) "List<$typeArg>?" else "List<$typeArg>"
-            }
-            else -> {
-                val simpleName = (classifier as? kotlin.reflect.KClass<*>)?.simpleName ?: "Any"
-                if (isNullable) "$simpleName?" else simpleName
-            }
-        }
-    }
-
-}
-
-class ProjectDelegateAccessor(private val variableName: String) {
-
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T> getValue(thisRef: Any?, property: KProperty<*>): T {
-        return ProjectProperty(variableName) as T
-    }
-
-}
-
-val DslContainer.project: ProjectDelegateProvider
-    get() = ProjectDelegateProvider(this)

@@ -1,6 +1,5 @@
 package gradle.dsl
 
-import gradle.dsl.core.project
 import gradle.dsl.plugins.embedded.IvyPublication
 import gradle.dsl.plugins.embedded.MavenPublication
 import gradle.dsl.plugins.kotlin.JvmTarget
@@ -204,11 +203,11 @@ class GradleBuildDslBuilderTest {
                 }
             }
 
-            val signingKeyId = ""
-            val signingKey: String by project
+            val signingKeyId = 123
+            val signingKey: String = "bla bla"
 
             signing {
-                val signingPassword: String? by project
+                val signingPassword: String? = "test"
 
                 useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
                 sign(publishing.publications)
@@ -228,10 +227,10 @@ class GradleBuildDslBuilderTest {
             |        mavenLocal()
             |    }
             |}
-            |val signingKeyId = ""
-            |val signingKey: String by project
+            |val signingKeyId = 123
+            |val signingKey: String = "bla bla"
             |signing {
-            |    val signingPassword: String? by project
+            |    val signingPassword: String? = "test"
             |    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
             |    sign(publishing.publications)
             |}
