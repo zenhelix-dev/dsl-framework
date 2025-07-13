@@ -188,7 +188,7 @@ class GradleBuildDslBuilderTest {
     }
 
     @Test
-    fun `test by`() {
+    fun `test name reference`() {
         val output = buildGradleKts {
             plugins {
                 java
