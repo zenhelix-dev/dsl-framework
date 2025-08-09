@@ -71,6 +71,44 @@ abstract class DslBlock(
     override fun autoRegister(element: DslElement) {
         addChild(element)
     }
+
+    fun declareVal(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableReference {
+        val declaration = VariableDeclaration(name, value, type, nullable, false)
+        addChild(declaration)
+        return VariableReference(name)
+    }
+
+    fun declareVar(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableReference {
+        val declaration = VariableDeclaration(name, value, type, nullable, true)
+        addChild(declaration)
+        return VariableReference(name)
+    }
+
+    fun variable(
+        name: String,
+        value: Any,
+        type: String? = null,
+        nullable: Boolean = false,
+        mutable: Boolean = false
+    ): VariableDelegate {
+        val declaration = VariableDeclaration(name, value, type, nullable, mutable)
+        addChild(declaration)
+        return VariableDelegate(VariableReference(name))
+    }
+
+    fun valOf(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableDelegate {
+        return variable(name, value, type, nullable, false)
+    }
+
+    fun varOf(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableDelegate {
+        return variable(name, value, type, nullable, true)
+    }
+
+    class VariableDelegate(private val reference: VariableReference) {
+        operator fun getValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>): VariableReference {
+            return reference
+        }
+    }
 }
 
 abstract class DslBodyBlock(

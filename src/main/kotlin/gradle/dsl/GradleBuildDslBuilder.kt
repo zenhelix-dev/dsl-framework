@@ -1,5 +1,6 @@
 package gradle.dsl
 
+import gradle.dsl.core.VariableReference
 import gradle.dsl.plugins.embedded.GradlePluginExtensionBlock
 import gradle.dsl.plugins.embedded.JavaExtensionBlock
 import gradle.dsl.plugins.embedded.PluginsDependenciesSpecScopeBlock
@@ -21,13 +22,13 @@ class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
         elements.add(root)
     }
 
-    var group: String
+    var group: Any
         get() = root.group
         set(value) {
             root.group = value
         }
 
-    var version: String
+    var version: Any
         get() = root.version
         set(value) {
             root.version = value
@@ -83,6 +84,14 @@ class GradleBuildDslBuilder : AbstractScriptBuilder("build.gradle.kts") {
 
     fun kotlin(block: KotlinExtensionBlock.() -> Unit = {}) = apply {
         root.kotlin(block)
+    }
+    
+    fun declareVal(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableReference {
+        return root.declareVal(name, value, type, nullable)
+    }
+
+    fun declareVar(name: String, value: Any, type: String? = null, nullable: Boolean = false): VariableReference {
+        return root.declareVar(name, value, type, nullable)
     }
 
 }

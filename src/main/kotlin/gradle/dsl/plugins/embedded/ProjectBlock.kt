@@ -17,13 +17,13 @@ class ProjectBlock(
         importAware?.addImport(import)
     }
 
-    var group: String
+    var group: Any
         get() = throw UnsupportedOperationException("group is write-only in DSL context")
         set(value) {
             addChild(PropertyAssignment("group", value))
         }
 
-    var version: String
+    var version: Any
         get() = throw UnsupportedOperationException("version is write-only in DSL context")
         set(value) {
             addChild(PropertyAssignment("version", value))

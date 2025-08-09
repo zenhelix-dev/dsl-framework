@@ -1,5 +1,6 @@
 package gradle.dsl
 
+import gradle.dsl.core.ref
 import gradle.dsl.plugins.embedded.IvyPublication
 import gradle.dsl.plugins.embedded.MavenPublication
 import gradle.dsl.plugins.kotlin.JvmTarget
@@ -203,11 +204,11 @@ class GradleBuildDslBuilderTest {
                 }
             }
 
-            val signingKeyId = 123
-            val signingKey: String = "bla bla"
+            val signingKeyId = declareVal("signingKeyId", 123)
+            val signingKey = declareVal("signingKey", "bla bla", "String")
 
             signing {
-                val signingPassword: String? = "test"
+                val signingPassword = declareVal("signingPassword", "test", "String", nullable = true)
 
                 useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
                 sign(publishing.publications)
@@ -232,6 +233,45 @@ class GradleBuildDslBuilderTest {
             |signing {
             |    val signingPassword: String? = "test"
             |    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+            |    sign(publishing.publications)
+            |}
+            |
+        """.trimMargin(), output
+        )
+    }
+    
+    @Test
+    fun `test variable references with ref function`() {
+        val output = buildGradleKts {
+            plugins {
+                java
+                signing
+            }
+
+            declareVal("projectVersion", "1.0.0", "String")
+            declareVal("apiKey", "secret-key-123")
+            
+            group = "io.github.example"
+            version = ref("projectVersion")
+
+            signing {
+                useInMemoryPgpKeys(ref("apiKey"), "password")
+                sign(publishing.publications)
+            }
+        }
+
+        assertEquals(
+            """
+            |plugins {
+            |    java
+            |    signing
+            |}
+            |val projectVersion: String = "1.0.0"
+            |val apiKey = "secret-key-123"
+            |group = "io.github.example"
+            |version = projectVersion
+            |signing {
+            |    useInMemoryPgpKeys(apiKey, "password")
             |    sign(publishing.publications)
             |}
             |
